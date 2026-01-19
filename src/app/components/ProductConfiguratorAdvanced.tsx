@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { FileImage, Frame, Box, Palette, Info } from 'lucide-react';
+import { Info } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from '@/app/components/ui/tabs';
 
-// 1. IMAGE PATHS - Direct strings for the public folder
+// Image paths for the public folder
 const plexiImg = "/plexi-sample.jpg";
 const aluImg = "/alu-sample.jpg";
 const pvcImg = "/pvc-sample.jpg";
@@ -14,7 +14,7 @@ type SupportType = 'classique' | 'fineart' | 'rigide' | 'deco';
 type RigideSubType = 'plexi' | 'alu' | 'pvc' | 'bois';
 type FormatCategory = 'standard' | 'panoramic' | 'square';
 
-[cite_start]// OFFICIAL 2026 PRICING DATA [cite: 1, 4, 6, 9]
+// OFFICIAL 2026 PRICING DATA 
 const SIZES: Record<FormatCategory, any[]> = {
   standard: [
     { value: '10x15', label: '10 × 15 cm', prices: { classique: 3, fineart: 0, plexi: 0, alu: 0, bois: 0, toile: 0 } },
@@ -22,7 +22,7 @@ const SIZES: Record<FormatCategory, any[]> = {
     { value: '15x20', label: '15 × 20 cm', prices: { classique: 15, fineart: 0, plexi: 0, alu: 0, bois: 0, toile: 0 } },
     { value: '18x24', label: '18 × 24 cm', prices: { classique: 20, fineart: 0, plexi: 0, alu: 0, bois: 0, toile: 0 } },
     { value: '20x30', label: '20 × 30 cm', prices: { classique: 60, fineart: 360, plexi: 360, alu: 312, bois: 252, toile: 312 }, minFineArt: 4 },
-    { value: '30x45', label: '30 × 45 cm', prices: { classique: 90, fineart: 504, plexi: 468, alu: 396, bois: 312, toile: 396 }, minFineArt: 2 },
+    { value: '30x45', label: '30 × 45 cm', prices: { classique: 90, fineart: 504, plexi: 468, alu: 312, bois: 312, toile: 396 }, minFineArt: 2 },
     { value: '40x60', label: '40 × 60 cm', prices: { classique: 180, fineart: 864, plexi: 756, alu: 660, bois: 552, toile: 660 } },
     { value: '50x75', label: '50 × 75 cm', prices: { classique: 264, fineart: 1050, plexi: 1068, alu: 828, bois: 708, toile: 828 } },
     { value: '60x90', label: '60 × 90 cm', prices: { classique: 384, fineart: 1440, plexi: 2640, alu: 1440, bois: 900, toile: 1068 } },
@@ -63,22 +63,14 @@ export function ProductConfiguratorAdvanced({ onSizeChange, onFormatChange }: an
   const currentSizes = SIZES[formatCategory] || [];
   const selectedSizeData = currentSizes.find(s => s.value === selectedSize);
 
-  // TRIGGER REACTION ON FORMAT OR SUPPORT CHANGE
   useEffect(() => {
     if (onFormatChange) onFormatChange(formatCategory);
-    
-    // Find the first available size to avoid showing 0 MAD
     const firstAvailable = currentSizes.find(s => s.prices[supportType] > 0 || supportType === 'rigide');
     if (firstAvailable) {
       setSelectedSize(firstAvailable.value);
-      if (onSizeChange) onSizeChange(firstAvailable.value); // Tells the main page to update the image
+      if (onSizeChange) onSizeChange(firstAvailable.value);
     }
   }, [formatCategory, supportType]);
-
-  const handleSizeSelection = (sizeValue: string) => {
-    setSelectedSize(sizeValue);
-    if (onSizeChange) onSizeChange(sizeValue); // Sends the new size to the left picture
-  };
 
   const getCurrentPrice = () => {
     if (!selectedSizeData) return 0;
@@ -86,11 +78,15 @@ export function ProductConfiguratorAdvanced({ onSizeChange, onFormatChange }: an
     return selectedSizeData.prices[supportType] || 0;
   };
 
+  const handleSizeClick = (val: string) => {
+    setSelectedSize(val);
+    if (onSizeChange) onSizeChange(val);
+  };
+
   return (
     <div className="flex flex-col gap-6 p-4 max-w-2xl mx-auto font-sans">
-      <div className="border-b pb-4 flex justify-between items-end">
-        <h1 className="text-3xl font-black uppercase tracking-tighter">Studio Photo</h1>
-        <span className="text-[10px] font-bold text-neutral-400">TARIFS 2026</span>
+      <div className="border-b pb-4">
+        <h1 className="text-3xl font-black uppercase tracking-tighter">Tirage</h1>
       </div>
 
       <Tabs value={supportType} onValueChange={(v: any) => setSupportType(v)}>
@@ -150,8 +146,8 @@ export function ProductConfiguratorAdvanced({ onSizeChange, onFormatChange }: an
             return (
               <button 
                 key={size.value} 
-                onClick={() => handleSizeSelection(size.value)} 
-                className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center justify-center relative ${selectedSize === size.value ? 'bg-black text-white border-black shadow-lg scale-[1.02]' : 'bg-white border-neutral-100 hover:border-neutral-300'}`}
+                onClick={() => handleSizeClick(size.value)} 
+                className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center justify-center relative ${selectedSize === size.value ? 'bg-black text-white border-black shadow-lg scale-[1.02]' : 'bg-white border-neutral-100'}`}
               >
                 <span className="font-bold text-sm">{size.label}</span>
                 <span className="text-[10px] opacity-60">{price} MAD</span>
