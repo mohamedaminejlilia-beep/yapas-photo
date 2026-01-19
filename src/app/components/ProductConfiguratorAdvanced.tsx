@@ -14,7 +14,7 @@ type SupportType = 'classique' | 'fineart' | 'rigide' | 'deco';
 type RigideSubType = 'plexi' | 'alu' | 'pvc' | 'bois';
 type FormatCategory = 'standard' | 'panoramic' | 'square';
 
-// OFFICIAL 2026 PRICING DATA [cite: 17, 19, 22]
+[cite_start]// OFFICIAL 2026 PRICING DATA [cite: 1, 4, 6, 9]
 const SIZES: Record<FormatCategory, any[]> = {
   standard: [
     { value: '10x15', label: '10 × 15 cm', prices: { classique: 3, fineart: 0, plexi: 0, alu: 0, bois: 0, toile: 0 } },
@@ -63,11 +63,22 @@ export function ProductConfiguratorAdvanced({ onSizeChange, onFormatChange }: an
   const currentSizes = SIZES[formatCategory] || [];
   const selectedSizeData = currentSizes.find(s => s.value === selectedSize);
 
+  // TRIGGER REACTION ON FORMAT OR SUPPORT CHANGE
   useEffect(() => {
     if (onFormatChange) onFormatChange(formatCategory);
+    
+    // Find the first available size to avoid showing 0 MAD
     const firstAvailable = currentSizes.find(s => s.prices[supportType] > 0 || supportType === 'rigide');
-    if (firstAvailable) setSelectedSize(firstAvailable.value);
+    if (firstAvailable) {
+      setSelectedSize(firstAvailable.value);
+      if (onSizeChange) onSizeChange(firstAvailable.value); // Tells the main page to update the image
+    }
   }, [formatCategory, supportType]);
+
+  const handleSizeSelection = (sizeValue: string) => {
+    setSelectedSize(sizeValue);
+    if (onSizeChange) onSizeChange(sizeValue); // Sends the new size to the left picture
+  };
 
   const getCurrentPrice = () => {
     if (!selectedSizeData) return 0;
@@ -92,10 +103,10 @@ export function ProductConfiguratorAdvanced({ onSizeChange, onFormatChange }: an
 
         {supportType === 'rigide' && (
           <div className="space-y-4 mb-6">
-            <div className="h-44 w-full overflow-hidden rounded-2xl border bg-neutral-100 relative">
+            <div className="h-44 w-full overflow-hidden rounded-2xl border bg-neutral-100 relative shadow-inner">
               <img 
                 src={RIGIDE_SUBTYPES.find(s => s.id === rigideSubType)?.img} 
-                className="w-full h-full object-cover" 
+                className="w-full h-full object-cover transition-opacity duration-300" 
                 alt="Support Preview" 
               />
               <div className="absolute bottom-3 left-3 bg-black/50 backdrop-blur-md text-white text-[10px] px-2 py-1 rounded-md flex items-center gap-1">
@@ -118,7 +129,7 @@ export function ProductConfiguratorAdvanced({ onSizeChange, onFormatChange }: an
       </Tabs>
 
       <div>
-        <label className="block text-[10px] font-bold uppercase text-neutral-400 mb-3 tracking-widest">Catégorie de Format</label>
+        <label className="block text-[10px] font-bold uppercase text-neutral-400 mb-3 tracking-widest">1. Choisir le format</label>
         <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
           {(['standard', 'panoramic', 'square'] as const).map((cat) => (
             <button
@@ -134,18 +145,18 @@ export function ProductConfiguratorAdvanced({ onSizeChange, onFormatChange }: an
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {currentSizes.map((size: any) => {
             const price = supportType === 'rigide' ? size.prices[rigideSubType] : size.prices[supportType];
-            if (price === 0) return null; // Hide sizes not available for this support
+            if (price === 0) return null;
 
             return (
               <button 
                 key={size.value} 
-                onClick={() => setSelectedSize(size.value)} 
-                className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center justify-center relative ${selectedSize === size.value ? 'bg-black text-white border-black shadow-lg' : 'bg-white border-neutral-100'}`}
+                onClick={() => handleSizeSelection(size.value)} 
+                className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center justify-center relative ${selectedSize === size.value ? 'bg-black text-white border-black shadow-lg scale-[1.02]' : 'bg-white border-neutral-100 hover:border-neutral-300'}`}
               >
                 <span className="font-bold text-sm">{size.label}</span>
                 <span className="text-[10px] opacity-60">{price} MAD</span>
                 {supportType === 'fineart' && size.minFineArt && (
-                  <span className="absolute -top-2 -right-1 bg-amber-400 text-black text-[8px] font-black px-1.5 py-0.5 rounded-full">
+                  <span className="absolute -top-2 -right-1 bg-amber-400 text-black text-[8px] font-black px-1.5 py-0.5 rounded-full shadow-sm">
                     MIN {size.minFineArt}
                   </span>
                 )}
@@ -157,7 +168,7 @@ export function ProductConfiguratorAdvanced({ onSizeChange, onFormatChange }: an
 
       <div className="mt-4 p-8 rounded-[2rem] bg-neutral-900 text-white text-center shadow-xl">
         <p className="text-[10px] uppercase tracking-widest opacity-50 mb-2">Estimation Prix Unitaire</p>
-        <p className="text-5xl font-black mb-6">{getCurrentPrice()} MAD</p>
+        <p className="text-5xl font-black mb-6 tracking-tighter">{getCurrentPrice()} MAD</p>
         <button className="w-full bg-white text-black font-black py-5 rounded-2xl uppercase tracking-widest hover:scale-95 transition-transform shadow-[0_0_20px_rgba(255,255,255,0.2)]">
           Commander le Tirage
         </button>
