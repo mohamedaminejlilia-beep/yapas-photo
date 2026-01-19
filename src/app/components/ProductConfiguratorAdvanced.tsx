@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { FileImage, Frame, Box, Palette } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from '@/app/components/ui/tabs';
 
-// We use direct strings because the images are now in the PUBLIC folder
+// 1. IMAGE PATHS - Fixed to use the public folder strings directly
 const plexiImg = "/plexi-sample.jpg";
 const aluImg = "/alu-sample.jpg";
 const pvcImg = "/pvc-sample.jpg";
@@ -65,7 +65,7 @@ export function ProductConfiguratorAdvanced({ onSizeChange, onFormatChange }: an
   };
 
   return (
-    <div className="flex flex-col gap-6 p-4">
+    <div className="flex flex-col gap-6 p-4 max-w-2xl mx-auto">
       <Tabs value={supportType} onValueChange={(v: any) => setSupportType(v)}>
         <TabsList className="grid grid-cols-4 bg-neutral-100 p-1 rounded-xl mb-4">
           <TabsTrigger value="classique">Classique</TabsTrigger>
@@ -100,7 +100,7 @@ export function ProductConfiguratorAdvanced({ onSizeChange, onFormatChange }: an
 
       <div>
         <label className="block text-[10px] font-bold uppercase text-neutral-400 mb-3 tracking-widest">1. Choisir le format</label>
-        <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+        <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
           {(['standard', 'poster', 'panoramic', 'square'] as const).map((cat) => (
             <button
               key={cat}
@@ -131,7 +131,7 @@ export function ProductConfiguratorAdvanced({ onSizeChange, onFormatChange }: an
       <div className="mt-4 p-8 rounded-[2rem] bg-neutral-900 text-white text-center shadow-xl">
         <p className="text-[10px] uppercase tracking-widest opacity-50 mb-2">Prix Total</p>
         <p className="text-5xl font-black mb-6">{getCurrentPrice()} MAD</p>
-        <button className="w-full bg-white text-black font-black py-5 rounded-2xl uppercase tracking-widest">
+        <button className="w-full bg-white text-black font-black py-5 rounded-2xl uppercase tracking-widest hover:scale-95 transition-transform">
           Commander
         </button>
       </div>
